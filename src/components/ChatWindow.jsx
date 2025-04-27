@@ -1,52 +1,50 @@
-import { useState, useEffect } from 'react';
-import axios from 'axios';
-import { v4 as uuidv4 } from 'uuid';
+import { useEffect, useState } from "react";
+import { askQuestion } from "../api";
+import { v4 as uuidv4 } from "uuid";
 
 function ChatWindow() {
-    const [sessionId, setSessionId] = useState('');
-    const [input, setInput] = useState('');
+    const [sessionId, setSessionId] = useState("");
+    const [question, setQuestion] = useState("");
     const [messages, setMessages] = useState([]);
 
     useEffect(() => {
-        const existing = sessionStorage.getItem('sessionId');
-        if (existing) {
-            setSessionId(existing);
-        } else {
-            const newSession = uuidv4();
-            sessionStorage.setItem('sessionId', newSession);
-            setSessionId(newSession);
+        let savedSession = localStorage.getItem("sessionId");
+        if (!savedSession) {
+            savedSession = uuidv4();
+            localStorage.setItem("sessionId", savedSession);
         }
+        setSessionId(savedSession);
     }, []);
 
-    const handleSend = async () => {
-        if (!input.trim()) return;
-
-        setMessages((prev) => [...prev, { role: 'user', text: input }]);
-
-        const response = await axios.post(`/api/ask?sessionId=${sessionId}`, { question: input });
-        const answer = response.data.answer;
-
-        setMessages((prev) => [...prev, { role: 'assistant', text: answer }]);
-        setInput('');
+    const sendQuestion = async (q) => {
+        try {
+            const userQ = q || question;
+            const answer = await askQuestion(sessionId, userQ);
+            const newMessages = [...messages, { role: "user", content: userQ }, { role: "assistant", content: answer }];
+            setMessages(newMessages.slice(-10)); // Keep only latest 10
+            setQuestion("");
+        } catch (error) {
+            console.error(error);
+        }
     };
 
     return (
-        <div>
-            <h2>Chat</h2>
-            <div style={{ height: '300px', overflowY: 'scroll', border: '1px solid black', padding: '10px' }}>
+        <div className="chat-window">
+            <h2>Chat (RAG)</h2>
+            <div className="messages">
                 {messages.map((msg, idx) => (
-                    <div key={idx} style={{ textAlign: msg.role === 'user' ? 'right' : 'left' }}>
-                        <strong>{msg.role === 'user' ? 'You' : 'Assistant'}:</strong> {msg.text}
+                    <div key={idx} className={msg.role}>
+                        <strong>{msg.role}:</strong> {msg.content}
+                        {msg.role === "user" && (
+                            <button onClick={() => sendQuestion(msg.content)}>Resend</button>
+                        )}
                     </div>
                 ))}
             </div>
-            <input
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                placeholder="Type your question..."
-                style={{ width: '80%' }}
-            />
-            <button onClick={handleSend}>Send</button>
+            <div className="chat-input">
+                <input value={question} onChange={(e) => setQuestion(e.target.value)} placeholder="Ask a question..." />
+                <button onClick={() => sendQuestion()}>Send</button>
+            </div>
         </div>
     );
 }
