@@ -9,6 +9,11 @@
 - **Frontend**: ReactJS (Vite)
 
 ---
+## Requirements
+1. Node 18 or higher
+2. Git 2.0 or higher
+3. NPM 10 or higher
+ 
 ##  Setup Frontend Project
 ```shell
 # Create project
@@ -38,3 +43,7 @@ npm run dev
 
 Frontend URL: http://localhost:5173
 ````
+#### Build
+```shell
+npm run build
+```

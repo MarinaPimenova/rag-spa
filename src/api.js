@@ -1,4 +1,4 @@
-export const BACKEND_URL = "http://localhost:8080"; // adjust if needed
+export const BACKEND_URL = "http://localhost:8081"; // adjust if needed
 
 export async function uploadKnowledge(file) {
     const formData = new FormData();
@@ -20,7 +20,22 @@ export async function askQuestion(sessionId, question) {
         body: JSON.stringify({ question })
     });
     if (!response.ok) {
-        throw new Error("Failed to ask question");
+        throw new Error("Failed to process question");
     }
     return await response.text();
+}
+
+export async function inquire(sessionId, question) {
+    const response = await fetch(`${BACKEND_URL}/api/${sessionId}/assistant`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ question })
+    });
+    if (!response.ok) {
+        throw new Error("Failed to ask question");
+    }
+    const data = await response.json();
+
+    // data is: { sessionId: '...', content: '...' }
+    return data;
 }
