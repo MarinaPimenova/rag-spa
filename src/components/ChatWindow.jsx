@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
-import { askQuestion } from "../api";
-import { v4 as uuidv4 } from "uuid";
+import {inquire} from "../api";
 
 function ChatWindow() {
     const [sessionId, setSessionId] = useState("");
@@ -10,8 +9,7 @@ function ChatWindow() {
     useEffect(() => {
         let savedSession = localStorage.getItem("sessionId");
         if (!savedSession) {
-            savedSession = uuidv4();
-            localStorage.setItem("sessionId", savedSession);
+            savedSession = 1;
         }
         setSessionId(savedSession);
     }, []);
@@ -19,22 +17,27 @@ function ChatWindow() {
     const sendQuestion = async (q) => {
         try {
             const userQ = q || question;
-            const answer = await askQuestion(sessionId, userQ);
+
+            const data = await inquire(sessionId, userQ);
+
+            const answer = data.content;
+            localStorage.setItem("sessionId", data.sessionId);
             const newMessages = [...messages, { role: "user", content: userQ }, { role: "assistant", content: answer }];
             setMessages(newMessages.slice(-10)); // Keep only latest 10
             setQuestion("");
         } catch (error) {
+            alert(error);
             console.error(error);
         }
     };
 
     return (
         <div className="chat-window">
-            <h2>Chat (RAG)</h2>
+            <h2>Chat: AI Assistant</h2>
             <div className="messages">
                 {messages.map((msg, idx) => (
                     <div key={idx} className={msg.role}>
-                        <strong>{msg.role}:</strong> {msg.content}
+                        <strong>{msg.role}({sessionId}):</strong> {msg.content}
                         {msg.role === "user" && (
                             <button onClick={() => sendQuestion(msg.content)}>Resend</button>
                         )}
@@ -43,7 +46,7 @@ function ChatWindow() {
             </div>
             <div className="chat-input">
                 <input value={question} onChange={(e) => setQuestion(e.target.value)} placeholder="Ask a question..." />
-                <button onClick={() => sendQuestion()}>Send</button>
+                <button onClick={() => sendQuestion(question)}>Send</button>
             </div>
         </div>
     );
