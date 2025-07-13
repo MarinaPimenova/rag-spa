@@ -1,25 +1,49 @@
 import { useState } from "react";
-import { uploadKnowledge } from "../api";
+import { uploadKnowledgeFile, uploadKnowledgeUrl } from "../api";
 
 function AdminUpload() {
     const [file, setFile] = useState(null);
+    const [url, setUrl] = useState("");
     const [status, setStatus] = useState("");
 
-    const handleUpload = async () => {
+    const handleFileUpload = async () => {
         if (!file) return;
         try {
-            await uploadKnowledge(file);
-            setStatus("Upload successful!");
+            await uploadKnowledgeFile(file);
+            setStatus("File upload successful!");
         } catch (error) {
-            setStatus("Upload failed: " + error.message);
+            setStatus("File upload failed: " + error.message);
+        }
+    };
+
+    const handleUrlUpload = async () => {
+        if (!url) return;
+        try {
+            await uploadKnowledgeUrl(url);
+            setStatus("URL upload successful!");
+        } catch (error) {
+            setStatus("URL upload failed: " + error.message);
         }
     };
 
     return (
         <div className="admin-upload">
             <h2>Admin Upload Knowledge</h2>
-            <input type="file" onChange={(e) => setFile(e.target.files[0])} />
-            <button onClick={handleUpload}>Upload</button>
+
+            <h4>Upload File</h4>
+            <input type="file" onChange={(e) => setFile(e.target.files?.[0])} />
+            <button onClick={handleFileUpload}>Upload File</button>
+
+            <h4>Or Provide URL</h4>
+            <input
+                type="text"
+                placeholder="https://example.com/page"
+                value={url}
+                onChange={(e) => setUrl(e.target.value)}
+                style={{ width: "100%", marginBottom: "10px" }}
+            />
+            <button onClick={handleUrlUpload}>Upload URL</button>
+
             {status && <p>{status}</p>}
         </div>
     );
