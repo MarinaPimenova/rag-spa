@@ -37,7 +37,7 @@ function AdminUpload() {
             <h4>Or Provide URL</h4>
             <input
                 type="text"
-                placeholder="https://example.com/page"
+                placeholder="https://www.microsoft.com/investor/reports/ar24/index.html"
                 value={url}
                 onChange={(e) => setUrl(e.target.value)}
                 style={{ width: "100%", marginBottom: "10px" }}
