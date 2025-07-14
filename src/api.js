@@ -1,6 +1,6 @@
 export const BACKEND_URL = "http://localhost:8081"; // adjust if needed
 
-export async function uploadKnowledge(file) {
+export async function uploadKnowledgeFile(file) {
     const formData = new FormData();
     formData.append("file", file);
 
@@ -10,6 +10,18 @@ export async function uploadKnowledge(file) {
     });
     if (!response.ok) {
         throw new Error("Failed to upload knowledge");
+    }
+}
+
+// Upload by URL
+export async function uploadKnowledgeUrl(url) {
+    const response = await fetch(`${BACKEND_URL}/api/load-url`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ url })
+    });
+    if (!response.ok) {
+        throw new Error("Failed to upload knowledge from URL");
     }
 }
 
