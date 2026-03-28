@@ -5,7 +5,7 @@ import "./App.css";
 function App() {
     return (
         <div className="app">
-            <h2>Ask Your Data (Practical Task#2)</h2>
+            <h2>Ask Your Data</h2>
             <AdminUpload />
             <ChatWindow />
         </div>
